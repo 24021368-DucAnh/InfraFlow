@@ -18,7 +18,7 @@ State/experience review (the *display labels below are descriptive, not authorit
 | Wake failed, BLOCKED or unknown | Safe error/status and operator guidance | Never promise the app is ready; operator/admin escalation as required | No unsafe retry or arbitrary state modification from anonymous page |
 | Reclaim initiated / terminal | Explicit policy-based terminal notice or unavailable URL (defined by v1.2) | No implied Wake capability | Authorization/backup/Verify rules apply; no stale app link |
 
-**Auth rule:** a public page may show a status but must not permit anonymous infrastructure mutation. Wake is a privileged operation; mechanism of login/session/token, anti-CSRF/rate limiting and scope is mapped from approved Interface Contracts, not invented here.
+**Wake rule from v1.2:** Technical Design §1 and Interface Contracts §§3 and 6 allow a person who receives the Environment URL to request **Wake without an AWS account**, while the Lease is valid and Wake capability is active. That request grants no Sleep, Extend, Register, Unregister or Reclaim permission. The API must enforce the approved Lease/capability and bounded anti-abuse/idempotency checks; the login, token, CSRF defense and numeric rate limit are physical implementation choices to map and test after G2/G3, not a blanket requirement that every URL visitor log in.
 
 ## 2. High-level routing & control/data plane separation
 
@@ -61,7 +61,7 @@ Do not silently pick Route 53, CloudFront, API Gateway, ALB or a domain architec
 
 **Cutover sequence for a test, not implementation authorization:** (1) verify environment ownership, DNS/TLS rights, permit and exclusive operation; (2) confirm DB dependencies, app health/functional probe and matching environment identity; (3) verify that public entry configuration will not expose unhealthy or wrong-origin endpoints; (4) initiate reversible cutover and observe from client resolvers over a bounded period; (5) continuously check origin/route and fall back to safe status when checks fail; (6) record actual error windows and cleanup. A cached DNS response, old client connection, TLS mismatch or late health failure must be captured, not silently counted as success.
 
-**User-visible status privacy:** distinguish unauthenticated visitor content (minimal generic availability message) from authenticated owner/operator details (environment ID, tenant, state, operational logs, cost and controls). An unauthenticated Wake or guessed environment URL must never enable infrastructure mutation. The actual permission and status fields must be copied from approved Interface Contracts v1.2; this is a test boundary, not a new role/schema design.
+**User-visible status privacy:** Interface Contracts v1.2 §2.2 and §6 limit URL visitors to public availability, safe progress and Wake availability. Resource inventory, state, IAM, tenant/owner details, cost and audit remain restricted. A guessed/invalid URL, expired Lease, absent Wake capability, replay with conflicting payload or request over the approved abuse limit must not start a new cloud operation; a valid URL visitor's bounded Wake request remains supported. No public status response contains raw state or saved plan.
 
 ## 4. Create versus Register URL ownership
 
@@ -91,8 +91,8 @@ Register MVP expects compatible AWS Terraform Web+DB but **must not assume the e
 |---|---|---|---|
 | URL-01 | Awake app healthy + permitted URL | Correct app traffic, TLS valid, no wrong Environment | Sanitized browser response/health, DNS/cert observations |
 | URL-02 | Confirmed Sleep and supported public endpoint | Stable hostname shows sleeping page without exposed app origin | DNS result, HTTP/TLS, cost/runtime inventory |
-| URL-03 | Wake requested by authorized actor | One authorized operation, status moves through Waking | Redacted operation status and audit record |
-| URL-04 | Anonymous/unauthorized Wake | No cloud mutation; explicit denial | HTTP/status mock or real sanitized evidence |
+| URL-03 | URL visitor requests Wake on valid Lease with Wake capability | One bounded operation or existing same-goal `operationId`; safe progress until health-gated success | Redacted operation status, Lease/capability decision and audit record |
+| URL-04 | Invalid URL, expired Lease, missing capability or disallowed actor/action | No new cloud mutation; explicit denial such as baseline `LEASE_EXPIRED` where applicable | Mock/contract response or real sanitized denial evidence |
 | URL-05 | App launch but health fails | Routing remains safe; never serve unhealthy app as ready | Health checks and routing observations |
 | URL-06 | DNS TTL/cache not settled | User sees documented transitional behavior, not a false success claim | Measured propagation across supported sample resolvers |
 | URL-07 | DNS/cert rights missing in Register | Mutation refused/BLOCKED; existing domain not hijacked | Ownership/proof preflight and audit |
@@ -103,9 +103,8 @@ Register MVP expects compatible AWS Terraform Web+DB but **must not assume the e
 | URL-12 | Cost of public endpoint during Sleep | Residual cost included in comparison, not assumed zero | P6 usage/pricing source, measured cost where feasible |
 | URL-13 | All targets in an exposed ALB target group become unhealthy | Upstream app route remains safely gated or fails to status; capture ALB fail-open behavior, wrong-route exposure and mitigation | ALB target health records + external probes + public-entry configuration |
 | URL-14 | Cached DNS record and persistent connection during Sleep/cutover | Record propagation/connection exposure duration and safe rollback, do not claim instantaneous switching | Resolver samples + HTTP/TLS result timestamps + retry/error window |
-| URL-15 | Anonymous enumeration/status/CSRF/replay/rate abuse of Wake | No tenant/private status leakage or unauthorized/duplicate operation; approved rate policy enforced | Sanitized access/operation logs and authz results |
+| URL-15 | URL enumeration, private-status access, CSRF/replay or rate abuse of Wake | Public projection stays minimal; no unauthorized or duplicate cloud operation; bounded Wake rule enforced without removing valid URL-user Wake | Sanitized access/operation logs and authorization results |
 | URL-16 | RDS restarts independently during long Sleep | Public entry does not implicitly expose app; controller identifies actual-versus-desired drift and follows approved policy | DB events/state, health/route checks, retained cost |
-
 
 **Evidence status:** NOT RUN for URL-01…URL-16; expected behaviors are **test criteria**, not measurements or claims of AWS capabilities.
 
@@ -114,7 +113,8 @@ Register MVP expects compatible AWS Terraform Web+DB but **must not assume the e
 ## 7. Week-7 design-review handoff
 
 - [x] Prepared proposed user-journey, authentication, origin separation, candidate strategies and negative P5 test catalogue.
-- [ ] Review against **complete** Interface Contracts v1.2 for exact statuses, operations, permissions, errors and state transitions; resolve section identifiers with owner.
+- [x] Checked the full Technical Design and Interface Contracts v1.2 §§2–8 on 21/10/2026; corrected URL-user Wake and Register DNS semantics. Physical wire and numeric limits remain pending G2/G3/G4.
+- [ ] Hoàng/Minh independently confirm the mapping and public status/Wake security tests.
 - [ ] Review with Minh on BLOCKED/cancel/retry/lock and with Hoàng on UI progress/URL status mapping.
 - [ ] Obtain G1 approval (if tests require AWS); P5 experiment must specify test domain, sandbox, IAM, budget, snapshots, maximum latency and cleanup.
 - [ ] Record P5 results and G3 option choice/ADR before G4 implementation plan.

@@ -2,7 +2,7 @@
 
 **Owner:** Ngô Bùi Đức Anh · **Reviewer proposal:** Trần Quý Đạt (Terraform/state) + Nguyễn Huy Minh (safety) · **Status:** REVIEW DRAFT, not an approved replacement for baseline v1.2 · **Date:** 2026-10-20
 
-> **Purpose:** produce a reviewable, evidence-oriented blueprint/component design for [DUC-25](https://linear.app/ducanh/issue/DUC-25). The approved [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) remain authoritative. Full-text section/field mapping is not verified here because the connected document read returned no full content; no exact API or Terraform input/output names are fabricated.
+> **Purpose:** produce a reviewable, evidence-oriented blueprint/component design for [DUC-25](https://linear.app/ducanh/issue/DUC-25). The approved [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) were read in full on 21/10/2026 and remain authoritative. The references below identify approved **logical** contract sections; physical wire/API and Terraform module inputs/outputs remain for G3/G4 mapping.
 
 ## 1. Scope and non-goals
 
@@ -63,25 +63,25 @@ Dependency direction shown here follows DUC-25 planning baseline; **not** a fina
 
 ## 4. Ownership, state and permission boundaries
 
-1. Create source belongs to the reviewed InfraFlow blueprint. Each Environment must have an unambiguous Terraform state/workspace/backend and a finite authoritative ownership/resource set. Exact structure, tags and field names must be copied from v1.2 once verified.
+1. Create source belongs to the reviewed InfraFlow blueprint. Each Environment must have an unambiguous Terraform state/workspace/backend and a finite authoritative ownership/resource set. Interface Contracts v1.2 §2.1 fixes the logical `Environment`, `Observation` and `HandoffRecord` information; physical Terraform structure and tag naming are not fixed there.
 2. Register does **not** silently transfer ownership because state is readable. Verify compatible Web+DB topology, backend access, exclusive writer, permissions, external/shared resources, domain authority and rollback before allowing destructive capabilities.
 3. No operation may assume a successful Terraform command implies AWS actual convergence. Verify post-operation inventory, service health and environmental ownership.
 4. Validator denies operations if missing permit/backup, unreadable or out-of-scope plan, unverified ownership, unknown drift, conflicting writer or unreconciled partial completion. Report BLOCKED / review-needed as required by the authoritative baseline.
 5. Terraform changes should be reviewed and executed by the **authorized executor** only. The control-plane/API must not become a second uncontrolled state writer. The exact lock/lease mechanism is a P1/P2A/P2B G2/G3 implementation decision.
 6. Data retention is a policy obligation, not inferred from `terraform destroy` or the presence of an RDS snapshot. Define who verifies backups/restores and evidence of finished cleanup.
 
-## 5. Boundary contract checklist (no invented wire fields)
+## 5. Boundary contract checklist (approved logic; physical wire pending)
 
-| Boundary | Producer → consumer | Required *meaning* | Exact wire mapping |
+| Boundary | Producer → consumer | Approved v1.2 source and logical data/result | Physical wire status |
 |---|---|---|---|
-| Create request → Blueprint validation | UI/API → orchestration | Supported Web+DB parameters, owner and lease, validation errors | **COPY FROM v1.2; UNVERIFIED** |
-| Component inventory/capability | Blueprint/Register adapter → lifecycle preflight | Resource scope, allowed actions, ownership and preserved-data obligations | **COPY FROM v1.2; UNVERIFIED** |
-| Desired/Observed & Operation | Lease/API/Controller → executor + UI | Atomic operation lifecycle, status/errors/idempotency | **COPY FROM v1.2; UNVERIFIED** |
-| Plan review/permit | Validator/policy → executor | Permit binding to specific scope/operation/state and denial result | **COPY FROM v1.2; UNVERIFIED** |
-| Health/DNS | Controller/entry → stable URL service | Awake/sleeping/waking/blocked visibility and traffic-health gate | **COPY FROM v1.2; UNVERIFIED** |
-| Reclaim/Verify | executor/inventory → API/audit | Backup confirmation, ownership-scoped deletion, zero remaining in supported scope | **COPY FROM v1.2; UNVERIFIED** |
+| Create request → Blueprint validation | Web/API → onboarding | Technical Design §§3–4; Contracts §§2.1, 3: `Lease`, Blueprint/version, Environment list, policy and schedule; return IDs/`operationId`; invalid input rejects before cloud mutation | Endpoint, JSON types and Terraform inputs **PENDING G4** |
+| Component inventory/capability | Blueprint/Register adapter → lifecycle preflight | Technical Design §§3–4; Contracts §§2.1–2.2, 3: `componentInventory`, `resourceOwnershipClass`, `capabilities`, `HandoffRecord`; Register Activate requires complete handoff and all three lifecycle capabilities | Adapter schema and tags **PENDING G3/G4** |
+| Desired/Observed & Operation | Lease/API/controller → executor + Web | Technical Design §§2, 5; Contracts §§2–4: `desiredState`, `terraformStateObservation`, `awsObservation`, `Operation`, three separate status axes; same-key/same-payload returns existing `operationId`, conflicting goal denies | Event transport and physical types **PENDING G4** |
+| Plan review/permit | Validator/policy → executor | Technical Design §§3, 5; Contracts §§2.1, 5, 8: `ScopedPermit` binds operation, action, resource scope, ownership class, allowed steps, plan fingerprint and evidence; unsafe or stale evidence → `BLOCKED` | Permit encoding and AWS allowlist representation **PENDING G4** |
+| Health/DNS | Controller/entry → sleeping/status service | Technical Design §§5–7; Contracts §§3, 6, 8: stable URL; safe public status; URL holder may request Wake with valid Lease and abuse limits; `HEALTH_GATE_FAILED`/`CUTOVER_UNVERIFIED` prevent false Awake/Sleep | Route mechanism, status endpoint and numeric limits **PENDING G2/G3/G4** |
+| Reclaim/Verify | Executor/inventory → API/audit | Technical Design §§4–5; Contracts §§2.1, 3, 5, 8: Lease version/confirmation, backup, scoped plan and AWS actions; `RECLAIMED` only after Terraform and AWS Verify; `VERIFY_INCOMPLETE` otherwise | Executor messages and evidence storage **PENDING G4** |
 
-**Do not generate `components.yaml`, Terraform modules, schema fields or API endpoints from this draft.** See [P3/P5 test-sheet supplement](../planning/DUC-25-27-P3-P5-evidence-test-sheets.md) for step-by-step verification instructions, evidence form, failure oracle and cleanup. Complete the exact contract-to-file mapping only after reading full v1.2 and G3 decisions. The existence of this document is not G4.
+**Do not generate `components.yaml`, Terraform modules or API endpoints from this draft.** The named logical fields above are copied from Contracts v1.2; no physical wire format is claimed. See [P3/P5 test-sheet supplement](../planning/DUC-25-27-P3-P5-evidence-test-sheets.md). Complete physical interface mapping after G2/G3 **in the implementation plan submitted for G4 approval**; do not start product code or IaC before that approval.
 
 ## 6. Acceptance scenarios / test catalogue (planned; all NOT RUN)
 
@@ -97,7 +97,7 @@ Dependency direction shown here follows DUC-25 planning baseline; **not** a fina
 | BP-08 | Backup incomplete/unknown | Destructive operation denied; BLOCKED or equivalent v1.2 outcome | P4 |
 | BP-09 | Terraform state vs AWS drift | Detect, report and choose safe remediation; no false success | P1/P2/P4 |
 | BP-10 | Reclaim + Verify | Backup/permit before deletion; verify actual resources and state before terminal success | P4 + E2E |
-| BP-11 | Two operations/old writer | Exactly authorized writer; conflicting work is denied/serialized | P1/P2 |
+| BP-11 | Two operations/old writer | Exactly one authorized writer; different-goal conflict returns `CONCURRENT_OPERATION` without queueing; same-goal retry returns the existing operation | P1/P2 |
 | BP-12 | Cost accounting awake vs asleep | Show measured/bounded assumptions and residual charges | P6 |
 | BP-13 | DB auto-start after seven days or unsupported stop topology | Desired and AWS Observed mismatch is surfaced; no false SLEEPING claim, review-safe reconciliation/operation policy | P3/P4 + AWS RDS constraint |
 | BP-14 | All ALB targets unhealthy during/after Wake | No unauthorized direct app serving through fail-open; independent public cutover gate or explicit BLOCKED | P3/P5 |
@@ -122,6 +122,7 @@ Dependency direction shown here follows DUC-25 planning baseline; **not** a fina
 
 - [x] Prepared responsibilities/dependencies, ownership/permissions and lifecycle/cost comparison matrix as a review draft.
 - [x] Prepared scenario and fail-closed catalogue with traceability to PoC P1–P6; status NOT RUN.
-- [ ] Reviewer confirms full v1.2 section/wire mapping and corrects any mismatches.
+- [x] Full v1.2 section and logical contract mapping added; physical wire remains explicitly pending.
+- [ ] Đạt/Minh independently confirm section mapping and correct any mismatches.
 - [ ] Group reviews component behavior, DB retention, costs and Register boundary from test evidence; G2/G3 remains open until evidence exists.
 - [ ] Record approved version/decision or requested revisions in DUC-25; only then mark design Done. Product code/IaC remains blocked until G4.

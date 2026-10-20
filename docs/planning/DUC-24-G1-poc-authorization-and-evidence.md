@@ -31,16 +31,23 @@
 | **P2B:** migration alternative | Controlled test-state copy/migration supports backup, new exclusive writer, consistent plan and restore | Unrecoverable state, wrong version, ghost resources, two active writers, plan change → stop/rollback; never destroy real resources | Backup verification, lock trace, plan comparison, safe restore and cleanup | Đạt / Minh |
 | **P3:** Web+DB, data-preserving Sleep/Wake | Supported selected AWS DB/app topology can transition while retaining data/health | Unsupported stop topology, RDS 7-day auto-start drift, data loss, app unhealthy → BLOCKED/FAIL | [P3 test sheets](DUC-25-27-P3-P5-evidence-test-sheets.md), DB fixture hash, AWS health before/after and cost | Hoàng / Đức Anh |
 | **P4:** guardrails, Reclaim/Verify | Ownership, backup, scoped permit, stable state and inventory verification prevent unauthorized deletion | Missing backup/permit, shared resource, unknown drift, partial remove, no Verify → stop/BLOCKED | Denial paths, permitted synthetic cleanup, inventory before/after, audit/failure matrix | Minh / Đạt |
-| **P5:** stable URL/health cutover | Sleep status endpoint and authorized Wake can preserve supported URL without exposing unhealthy origins | ALB all targets unhealthy fail-open, stale DNS/TLS, unknown domain ownership, anonymous Wake → safe fallback or BLOCKED | [P5 test sheets](DUC-25-27-P3-P5-evidence-test-sheets.md), external TLS/HTTP/resolver observations, rollback | Hoàng + Đức Anh / Minh |
+| **P5:** stable URL/health cutover | Sleeping page and bounded URL-user Wake preserve a supported URL without exposing unhealthy origins | ALB all targets unhealthy fail-open, stale DNS/TLS, missing domain authority, expired/abusive Wake → safe fallback or BLOCKED | [P5 test sheets](DUC-25-27-P3-P5-evidence-test-sheets.md), external TLS/HTTP/resolver observations, rollback | Hoàng + Đức Anh / Minh |
 | **P6:** Cloud cost model | Compare baseline 24/7 vs stop-only vs InfraFlow with residual charges | Unpriced retained resource, unverifiable spend, hidden NAT/ALB/RDS/backup costs → mark UNKNOWN | Region/date/currency-specific pricing, sampled usage, bounded period, actual AWS bill if allowed | Hoàng / Đức Anh |
 
 **Dependency order:** G1 permission → P1/P2 for safe Register state assumptions → P3/P4/P5/P6 within explicitly isolated approved scopes → G2 review (pass/fail with evidence) → G3 ADR decisions, or BLOCKED/alternate if not feasible. Exact probe ordering can be adjusted by the approved PoC plan, but never bypass G1 or old-writer fencing.
+
+### Contract negative subcases (planned; no extra AWS probe authorization)
+
+| Case | Parent probe / source | Expected safety result | Evidence owner/status |
+|---|---|---|---|
+| `CT-13-U` Register Unregister handback | P2A/P2B; Technical Design §4; Contracts §§2.1, 3, 7, 9 | Stop new operations, verify no active workflow and state/AWS/DNS alignment, return writer/DNS/IAM rights, then disable capability; never destroy on Unregister. Incomplete reverse handoff → `BLOCKED` without split ownership. | Đạt + Minh; **NOT RUN**, needs G1 scope and reviewer |
+| `CT-14-R` uncertain operation recovery | P4; Technical Design §5; Contracts §§2, 4–5, 7–8 | Same key/payload returns existing `operationId`; conflicting payload/goal denies. Timeout or ambiguous infrastructure result stays queryable/`BLOCKED`; no blind destructive retry or false `SUCCEEDED`. | Minh + Đạt; **NOT RUN**, local mock before G4 only as design check |
 
 ## 3. Minimal evidence record for each actual probe
 
 ```text
 PoC_ID: P1 / P2A / P2B / P3 / P4 / P5 / P6
-Source_requirement: DUC-xx + approved v1.2 section/table (pending full text)
+Source_requirement: DUC-xx + exact v1.2 logical section mapped in DUC-40 (physical wire pending G4)
 G1_approval_id_and_expiry: PENDING
 Operator_and_independent_reviewer: PENDING
 Sandbox_scope: private reference (no AWS identifiers in public GitHub)
@@ -73,7 +80,7 @@ Reviewer_decision: PENDING
 ## 5. Rulings and deferred decisions
 
 - **Ruling:** Do not pick a Terraform state backend, AWS workflow executor, edge routing architecture, SQL engine/topology or numerical health/DNS thresholds from a template. Those are implementation choices tested at G2 and selected at G3, within the fixed v1.2 semantics.
-- **Ruling:** Source text v1.2 not fully retrievable from Linear via this connection. Any exact contract fields/permissions for the probes must be copied and reviewed against the owner's canonical docs; DUC-34/35 are summaries only.
+- **Ruling:** Full Technical Design and Interface Contracts v1.2 were retrieved and read on 21/10/2026. DUC-40 now maps approved logical fields/permissions to sections; physical wire mapping and independent domain review remain pending. DUC-34/35 are approval summaries, not replacements for the two documents.
 - **Ruling:** G4 product implementation plan must be a separate, reviewed artifact after G2/G3. This G1 package is neither G4 approval nor permission to deploy.
 
 ## 6. Hand-off actions
