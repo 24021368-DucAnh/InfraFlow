@@ -17,7 +17,7 @@ Two scopes appear in the group's planning history:
 |---|---|---|---|
 | W6/W7 DUC-25 | [Blueprint component & safety review](../design/DUC-25-web-database-blueprint-review.md) | Logical graph, lifecycle & cost matrix, permission/state boundaries, BP-01…BP-16 test catalogue | Validate exact v1.2 contracts; G1/P3 evidence, reviewer acceptance |
 | W7 DUC-27 | [Stable URL/sleeping page & P5 review](../design/DUC-27-url-sleeping-health-cutover-review.md) | User state matrix, auth/health invariants, DNS alternatives, URL-01…URL-16 tests | Validate domain authority and v1.2 semantics, G1/P5, G3 option decision, reviewer |
-| W7 DUC-40 | Requirements→component→test mapping, below and existing [traceability draft](https://linear.app/ducanh/document/infraflow-requirementcomponenttest-traceability-v01-draft-2613bddb7173) | Cross-team coverage checklist, test IDs, blockers | Exact v1.2 section mapping and all-owner peer review |
+| W7 DUC-40 | [v1.2 Contract Traceability Register v0.2](DUC-40-v12-contract-traceability-register.md) plus original [traceability draft](https://linear.app/ducanh/document/infraflow-requirementcomponenttest-traceability-v01-draft-2613bddb7173) | **14** semantic categories with provenance and ownership; CT-13 Unregister gap explicitly flagged | Exact v1.2 section/wire mapping and all-owner peer review |
 | W7 DUC-41 | [Collaboration agreement v0.2](https://linear.app/ducanh/document/infraflow-github-collaboration-and-integration-v02-public-pr-1-open-8139b78c893a), actual Github [onboarding PR #1](https://github.com/24021368-DucAnh/InfraFlow/pull/1) and [W7–W10 plan PR #19](https://github.com/24021368-DucAnh/InfraFlow/pull/19) | Public repo PR policy documented, CI safety checklist below | Verify reviewer enforcement/rulesets, non-destructive CI setup and G4 review |
 
 **Actual GitHub verification as of 20/10:** onboarding PR #1 was merged; weekly issue plan PR #19 was merged later. GitHub issues #2–#18 already exist. Do not confuse merged *documentation* with actual cloud/software implementation.
@@ -45,12 +45,14 @@ Two scopes appear in the group's planning history:
 
 ### W7-A: Baseline traceability (DUC-40)
 - [x] Draft owner/component/test coverage and link BP/URL acceptance test IDs.
+- [x] Created [DUC-40 v1.2 contract traceability register](DUC-40-v12-contract-traceability-register.md) with 14 CT categories, authority tiers and owner review routing (exact wire fields remain UNVERIFIED).
 - [ ] Copy **exact approved v1.2 section references and wire tables** into DUC-40 traceability register.
 - [ ] Identify all required lifecycle edge cases absent from these draft catalogues.
 - [ ] Đạt/Minh/Hoàng review producer/consumer mapping; record review comments/approval.
 
 ### W7-B: PoC readiness and design evidence (DUC-24/37/43/44/45)
 - [x] Prepare proposed P3/P5 test matrices and [reproducible evidence sheet](DUC-25-27-P3-P5-evidence-test-sheets.md) for G1 review (16 BP + 16 URL acceptance scenarios; **all NOT RUN**).
+- [x] Prepared [G1 approval and P1–P6 readiness package](DUC-24-G1-poc-authorization-and-evidence.md), with go/no-go/stop/cleanup/evidence forms **not filled or approved**.
 - [ ] Obtain G1 account owner approval of account, region, IAM, budget/kill-switch, test domain, resource scope, test slots, rollback/cleanup.
 - [ ] After G1: execute P1–P6 approved probes; record expected/actual/pass-fail, timing/cost, sanitized AWS inventory and cleanup.
 - [ ] G2 review results; register G3 ADR for DNS option, backend strategy, retry/health/cost thresholds without altering already approved semantics.
@@ -74,6 +76,8 @@ An AI-assisted [GitHub PR #20 review](https://github.com/24021368-DucAnh/InfraFl
 | P2: lifecycle ownership/component cost inputs vague | DUC-25 per-component evidence/cost table and P3-08 | Exact v1.2 schemas + region-aware AWS price/actual bill **OPEN** |
 | P2: 24 cases not executable | [P3/P5 reproducible probe sheet](DUC-25-27-P3-P5-evidence-test-sheets.md) with fixtures, procedures, pass/fail/evidence/cleanup and versioned case mapping (now **32 planned IDs**) | Run only after G1/G4 as appropriate; all outcomes **NOT RUN** |
 | P2: Register DNS ownership, Wake misuse/status leakage | DUC-27 authority matrix, cutover restrictions and URL-15/P5-02/05 | Actual v1.2 permission/error semantics and P5 **OPEN** |
+
+**21/10 review update:** [DUC-40 baseline-to-contract register](DUC-40-v12-contract-traceability-register.md) now enumerates 14 semantic boundaries with evidence tiers and explicitly identifies the Unregister handback and durable operation recovery review gaps. [G1 authorization package](DUC-24-G1-poc-authorization-and-evidence.md) contains the AWS owner sign-off form and PoC P1–P6 criteria. Both are PRE-GATE artifacts: **contract sections still need original v1.2 review; G1 remains NOT APPROVED**.
 
 **Reference boundaries:**
 - [DUC-34](https://linear.app/ducanh/issue/DUC-34) and [DUC-35](https://linear.app/ducanh/issue/DUC-35) confirm categories of accepted architecture and interface semantics, but their issue descriptions are not a replacement for full v1.2 sections and exact wire tables.
