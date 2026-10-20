@@ -43,6 +43,24 @@ Dependency direction shown here follows DUC-25 planning baseline; **not** a fina
 
 **Cost classification proposal:** for each component record (a) billed while active, (b) retained fixed cost while asleep, (c) pay-per-use, (d) possible one-off snapshot/storage charges. Fill this table from AWS region, P3/P6 evidence, not guesses. NAT, ALB, RDS and storage behavior may dominate total cost; the blueprint's benefit must be **measured** against 24/7 and stop-only.
 
+### AWS feasibility notes and component evidence (review addendum)
+
+**Source distinction:** the table above comes from DUC-25 planning scope. The next items are *external AWS constraints to verify*; they do not amend v1.2 semantics or select a particular implementation.
+
+| Component | Preflight/input evidence (semantic, not field names) | Observed output and safe stop/rollback checks | Residual cost or restriction to measure |
+|---|---|---|---|
+| network | Approved owner/resource boundary, subnets, shared dependency inventory, SG/route constraints | Diff must not mutate external/shared VPC dependencies; verify AWS inventory and state after operation | VPC endpoints, IP/traffic charges and egress requirements vary by topology |
+| egress | Required outbound destinations, billable NAT choice and app/database dependency | Check whether it can be detached safely and then recovered; failed egress reconnection must not route unhealthy app | NAT or alternative connection charges may continue even when app is stopped |
+| database | Engine/topology supports intended operation, confirmed owner, backup/retention evidence, persistent data fixture | Record AWS DB state transitions and independent data read after Wake; on unsupported/unknown topology deny or BLOCKED | **RDS DB-instance stop is temporary (automatic restart after 7 days)**; retained storage/backup still billed. Read replica / Multi-AZ restrictions require review |
+| app | Reviewed software/image and stateful data map, dependencies, readiness probe; exclusive writer for IaC-controlled changes | Assert app health **and DB readiness** before public cutover; scope app rollback and restore status | Compute/EBS/ALB/capacity charges may not become zero while asleep |
+| entry | Proven zone/certificate/hostname and environment ownership; public status data classification | Confirm reversible routing authority and safe fallback; ALB health alone cannot enforce a health gate if all targets unhealthy | Edge/DNS/ALB/cert and data-transfer charges may remain |
+
+**RDS-specific edge case:** A stopped Amazon RDS DB instance automatically restarts after seven days; the operation and supported DB types differ between RDS instances, Aurora clusters, RDS Custom and read replicas. Therefore 'Sleep' cannot assume DB remains stopped indefinitely. The lifecycle controller must *observe and reconcile* AWS changes with authorized policy while protecting data; whether/how to renew Sleep without restarting or breaching constraints requires P3 evidence and G3 design choice. Do **not** propose periodic restop as an approved solution. External references: [StopDBInstance API](https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StopDBInstance.html), [AWS RDS stop/start limitations](https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/automatically-stop-and-start-an-amazon-rds-db-instance-using-aws-systems-manager-maintenance-windows.html).
+
+**ALB-specific edge case:** If the implementation exposes an ALB directly while every registered target is unhealthy, AWS can route to all of them ('fail open'). Therefore application availability must be guarded *upstream of any potentially fail-open route*; the exact safe entry mechanism is a P5/G3 decision. Reference: [ALB target-group health checks](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html).
+
+**Cost evidence form (P6; values intentionally not invented):** for each actual AWS resource classify owner/env binding, hourly/usage/storage/transfer pricing source, region/currency/as-of date, active spend, sleep retained spend, one-off snapshot/restore spend, cleanup verification, and estimate versus measured totals. A claim of savings requires a clear observation window and comparable workload assumptions.
+
 ## 4. Ownership, state and permission boundaries
 
 1. Create source belongs to the reviewed InfraFlow blueprint. Each Environment must have an unambiguous Terraform state/workspace/backend and a finite authoritative ownership/resource set. Exact structure, tags and field names must be copied from v1.2 once verified.
@@ -63,7 +81,7 @@ Dependency direction shown here follows DUC-25 planning baseline; **not** a fina
 | Health/DNS | Controller/entry → stable URL service | Awake/sleeping/waking/blocked visibility and traffic-health gate | **COPY FROM v1.2; UNVERIFIED** |
 | Reclaim/Verify | executor/inventory → API/audit | Backup confirmation, ownership-scoped deletion, zero remaining in supported scope | **COPY FROM v1.2; UNVERIFIED** |
 
-**Do not generate `components.yaml`, Terraform modules, schema fields or API endpoints from this draft.** Complete the exact contract-to-file mapping only after reading full v1.2 and G3 decisions. The existence of this document is not G4.
+**Do not generate `components.yaml`, Terraform modules, schema fields or API endpoints from this draft.** See [P3/P5 test-sheet supplement](../planning/DUC-25-27-P3-P5-evidence-test-sheets.md) for step-by-step verification instructions, evidence form, failure oracle and cleanup. Complete the exact contract-to-file mapping only after reading full v1.2 and G3 decisions. The existence of this document is not G4.
 
 ## 6. Acceptance scenarios / test catalogue (planned; all NOT RUN)
 
@@ -81,8 +99,12 @@ Dependency direction shown here follows DUC-25 planning baseline; **not** a fina
 | BP-10 | Reclaim + Verify | Backup/permit before deletion; verify actual resources and state before terminal success | P4 + E2E |
 | BP-11 | Two operations/old writer | Exactly authorized writer; conflicting work is denied/serialized | P1/P2 |
 | BP-12 | Cost accounting awake vs asleep | Show measured/bounded assumptions and residual charges | P6 |
+| BP-13 | DB auto-start after seven days or unsupported stop topology | Desired and AWS Observed mismatch is surfaced; no false SLEEPING claim, review-safe reconciliation/operation policy | P3/P4 + AWS RDS constraint |
+| BP-14 | All ALB targets unhealthy during/after Wake | No unauthorized direct app serving through fail-open; independent public cutover gate or explicit BLOCKED | P3/P5 |
+| BP-15 | Registered Web+DB includes external/shared route or unmanaged cert | No destructive/URL mutation outside owner-controlled scope | P2/P4/P5 |
+| BP-16 | Final Verify inventory incomplete/unavailable | Terminal Reclaimed status not asserted; evidence gap and safe escalation recorded | P4 + E2E |
 
-**Current test state:** NOT RUN for BP-01…BP-12. No AWS resource has been created or destroyed as part of this document.
+**Current test state:** NOT RUN for BP-01…BP-16. No AWS resource has been created or destroyed as part of this document.
 
 **Execution gates:** All AWS PoC probes require explicit **G1** authorization (account/region/IAM/budget/cleanup). Real product code/IaC, Terraform deployment, and the implementing interface/file mapping require approved **G4** after reviewed G2/G3 evidence.
 
