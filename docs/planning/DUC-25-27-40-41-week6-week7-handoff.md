@@ -15,8 +15,8 @@ Two scopes appear in the group's planning history:
 
 | Workstream | Draft deliverable | Done here | Remains open |
 |---|---|---|---|
-| W6/W7 DUC-25 | [Blueprint component & safety review](../design/DUC-25-web-database-blueprint-review.md) | Logical graph, lifecycle & cost matrix, permission/state boundaries, BP-01…BP-12 test catalogue | Validate exact v1.2 contracts; G1/P3 evidence, reviewer acceptance |
-| W7 DUC-27 | [Stable URL/sleeping page & P5 review](../design/DUC-27-url-sleeping-health-cutover-review.md) | User state matrix, auth/health invariants, DNS alternatives, URL-01…URL-12 tests | Validate domain authority and v1.2 semantics, G1/P5, G3 option decision, reviewer |
+| W6/W7 DUC-25 | [Blueprint component & safety review](../design/DUC-25-web-database-blueprint-review.md) | Logical graph, lifecycle & cost matrix, permission/state boundaries, BP-01…BP-16 test catalogue | Validate exact v1.2 contracts; G1/P3 evidence, reviewer acceptance |
+| W7 DUC-27 | [Stable URL/sleeping page & P5 review](../design/DUC-27-url-sleeping-health-cutover-review.md) | User state matrix, auth/health invariants, DNS alternatives, URL-01…URL-16 tests | Validate domain authority and v1.2 semantics, G1/P5, G3 option decision, reviewer |
 | W7 DUC-40 | Requirements→component→test mapping, below and existing [traceability draft](https://linear.app/ducanh/document/infraflow-requirementcomponenttest-traceability-v01-draft-2613bddb7173) | Cross-team coverage checklist, test IDs, blockers | Exact v1.2 section mapping and all-owner peer review |
 | W7 DUC-41 | [Collaboration agreement v0.2](https://linear.app/ducanh/document/infraflow-github-collaboration-and-integration-v02-public-pr-1-open-8139b78c893a), actual Github [onboarding PR #1](https://github.com/24021368-DucAnh/InfraFlow/pull/1) and [W7–W10 plan PR #19](https://github.com/24021368-DucAnh/InfraFlow/pull/19) | Public repo PR policy documented, CI safety checklist below | Verify reviewer enforcement/rulesets, non-destructive CI setup and G4 review |
 
@@ -50,7 +50,7 @@ Two scopes appear in the group's planning history:
 - [ ] Đạt/Minh/Hoàng review producer/consumer mapping; record review comments/approval.
 
 ### W7-B: PoC readiness and design evidence (DUC-24/37/43/44/45)
-- [x] Prepare proposed P3 component and P5 DNS/health test matrices for G1 review.
+- [x] Prepare proposed P3/P5 test matrices and [reproducible evidence sheet](DUC-25-27-P3-P5-evidence-test-sheets.md) for G1 review (16 BP + 16 URL acceptance scenarios; **all NOT RUN**).
 - [ ] Obtain G1 account owner approval of account, region, IAM, budget/kill-switch, test domain, resource scope, test slots, rollback/cleanup.
 - [ ] After G1: execute P1–P6 approved probes; record expected/actual/pass-fail, timing/cost, sanitized AWS inventory and cleanup.
 - [ ] G2 review results; register G3 ADR for DNS option, backend strategy, retry/health/cost thresholds without altering already approved semantics.
@@ -61,6 +61,35 @@ Two scopes appear in the group's planning history:
 - [ ] Confirm exact team GitHub handles and collaborator permissions; validate main branch protection and independent reviewer enforcement.
 - [ ] Agree on **non-destructive checks only** (Markdown/reference checks, future lint/unit/contract/static Terraform checks without live AWS credentials or apply/destroy); do not claim CI exists until workflow is merged and verified.
 - [ ] After reviewed G2/G3: create bite-sized G4 implementation plan with concrete approved file paths, interfaces, TDD failures→fix→pass, reviewer, effort, dependencies, cleanup, fallback; owner approves **before code/IaC**.
+
+### W7 quality-review closure tracker (no fabricated sign-off)
+
+An AI-assisted [GitHub PR #20 review](https://github.com/24021368-DucAnh/InfraFlow/pull/20) identified the following. These are **document changes**, not verified AWS test outcomes or independent peer approvals.
+
+| Prior finding | Remediation now in PR #20 | Remaining acceptance gate |
+|---|---|---|
+| P1: blueprint contract has six UNVERIFIED wire mappings | Added the reusable [P3/P5 test sheets](DUC-25-27-P3-P5-evidence-test-sheets.md) and six explicit owner/reviewer contract categories; do **not** invent field names | Exact full v1.2 section/type mapping + peer review **STILL BLOCKED** |
+| P1: RDS 7-day auto-restart/long Sleep missing | DUC-25 RDS feasibility addendum and BP-13; P3-03 synthetic drift scenario | G1-authorized AWS evidence, G3 policy choice **NOT RUN** |
+| P1: all-unhealthy ALB fail-open | DUC-27 independent public-route gate, URL-13 and P5-03 | Select/verify mechanism after G2/G3; no zero-traffic proof **NOT RUN** |
+| P2: lifecycle ownership/component cost inputs vague | DUC-25 per-component evidence/cost table and P3-08 | Exact v1.2 schemas + region-aware AWS price/actual bill **OPEN** |
+| P2: 24 cases not executable | [P3/P5 reproducible probe sheet](DUC-25-27-P3-P5-evidence-test-sheets.md) with fixtures, procedures, pass/fail/evidence/cleanup and versioned case mapping (now **32 planned IDs**) | Run only after G1/G4 as appropriate; all outcomes **NOT RUN** |
+| P2: Register DNS ownership, Wake misuse/status leakage | DUC-27 authority matrix, cutover restrictions and URL-15/P5-02/05 | Actual v1.2 permission/error semantics and P5 **OPEN** |
+
+**Reference boundaries:**
+- [DUC-34](https://linear.app/ducanh/issue/DUC-34) and [DUC-35](https://linear.app/ducanh/issue/DUC-35) confirm categories of accepted architecture and interface semantics, but their issue descriptions are not a replacement for full v1.2 sections and exact wire tables.
+- External AWS documents ([RDS stop/7-day restart](https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StopDBInstance.html), [ALB all-targets-unhealthy fail-open](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html)) constrain feasibility; they do not override the approved functional contract.
+- A formal review posted through project owner `24021368-DucAnh` is **AI-assisted feedback, not independent peer sign-off**. A reviewer must re-check this patch and decide if each GitHub thread is resolved.
+
+### Owner pre-G4 completion criteria
+
+- [x] Public GitHub repo/working rules, 16 weekly issues and team plan: documentation set up; onboarding PR #1 / weekly plan PR #19 merged.
+- [x] DUC-25 and DUC-27 design review drafts, explicit RDS/ALB and Register/DNS risk scenarios, test sheets/evidence templates prepared on PR #20.
+- [x] W7 traceability themes and responsibilities cross-referenced with 32 proposed BP/URL test IDs.
+- [ ] Exact approved v1.2 section/wire mapping to all required boundaries, checked by peer reviewer.
+- [ ] Independent review/sign-off by Đạt, Minh and Hoàng for relevant producer/consumer boundaries.
+- [ ] G1 AWS PoC approval; G2/P1–P6 evidence; G3 ADR for implementation-only parameters; G4 implementation plan acceptance (not part of this documentation-only task).
+
+**Decision:** W6 G0 is Done. DUC-25/27 design draft + W7 plan artifacts are **ready for peer review**, but official issue states remain **In Progress**. This is not authorization to merge PR #20 or start Terraform/AWS activity.
 
 ## 4. G1–G4 decision ledger (only record explicit evidence/approval)
 
