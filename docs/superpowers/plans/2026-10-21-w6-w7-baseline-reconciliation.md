@@ -47,7 +47,7 @@
 - [x] Run Markdown lint, links/cross-reference checks and one-to-one BP/URL coverage checks.
 - [x] Run secret scan and inspect entire PR diff for out-of-scope files.
 - [x] Run Codex Security diff review and resolve actionable findings.
-- [ ] Commit and push verified documentation, update PR/review threads and Linear/GitHub issue state with actual evidence.
+- [x] Commit and push verified documentation, update PR/review threads and Linear/GitHub issue state with actual evidence.
 - [x] Perform independent final diff review and retain gate blockers.
 
 ## Execution record
