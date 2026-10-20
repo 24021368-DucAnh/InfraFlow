@@ -50,4 +50,4 @@
 - [DUC-37 — G2 evidence review & G3 decision](https://linear.app/ducanh/issue/DUC-37)
 - [DUC-36 — G4 plan readiness](https://linear.app/ducanh/issue/DUC-36)
 - [DUC-33 — Integration/test/demo](https://linear.app/ducanh/issue/DUC-33)
-- [Repo onboarding PR #1](https://github.com/24021368-DucAnh/InfraFlow/pull/1), still awaiting review/merge.
+- [Repo onboarding PR #1](https://github.com/24021368-DucAnh/InfraFlow/pull/1) — **MERGED** into `main` on 20 October 2026; the five onboarding files were verified on `main`.
