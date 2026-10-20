@@ -84,6 +84,8 @@ Dependency direction shown here follows DUC-25 planning baseline; **not** a fina
 
 **Current test state:** NOT RUN for BP-01…BP-12. No AWS resource has been created or destroyed as part of this document.
 
+**Execution gates:** All AWS PoC probes require explicit **G1** authorization (account/region/IAM/budget/cleanup). Real product code/IaC, Terraform deployment, and the implementing interface/file mapping require approved **G4** after reviewed G2/G3 evidence.
+
 ## 7. Review questions, ownership and handoff
 
 | Question to confirm | Responsible / reviewer | Evidence source |
