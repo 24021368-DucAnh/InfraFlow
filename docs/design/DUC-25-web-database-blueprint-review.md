@@ -2,7 +2,7 @@
 
 **Owner:** Ngô Bùi Đức Anh · **Reviewer proposal:** Trần Quý Đạt (Terraform/state) + Nguyễn Huy Minh (safety) · **Status:** REVIEW DRAFT, not an approved replacement for baseline v1.2 · **Date:** 2026-10-20
 
-> **Purpose:** produce a reviewable, evidence-oriented blueprint/component design for [DUC-25](https://linear.app/ducanh/issue/DUC-25). The approved [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) were read in full on 21/10/2026 and remain authoritative. The references below identify approved **logical** contract sections; physical wire/API and Terraform module inputs/outputs remain for G3/G4 mapping.
+> **Purpose:** produce a reviewable, evidence-oriented blueprint/component design for [DUC-25](https://linear.app/ducanh/issue/DUC-25). The approved [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) were read in full on 21/10/2026 and remain authoritative. The references below identify approved **logical** contract sections; physical wire/API and Terraform module inputs/outputs must be mapped after G2/G3 in the plan submitted for G4 approval.
 
 ## 1. Scope and non-goals
 

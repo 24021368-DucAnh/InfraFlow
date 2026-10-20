@@ -113,7 +113,7 @@ Register MVP expects compatible AWS Terraform Web+DB but **must not assume the e
 ## 7. Week-7 design-review handoff
 
 - [x] Prepared proposed user-journey, authentication, origin separation, candidate strategies and negative P5 test catalogue.
-- [x] Checked the full Technical Design and Interface Contracts v1.2 §§2–8 on 21/10/2026; corrected URL-user Wake and Register DNS semantics. Physical wire and numeric limits remain pending G2/G3/G4.
+- [x] Checked the full Technical Design and Interface Contracts v1.2 §§2–8 on 21/10/2026; corrected URL-user Wake and Register DNS semantics. Numeric limits await G2/G3 evidence; physical wire mapping belongs in the plan submitted for G4 approval.
 - [ ] Hoàng/Minh independently confirm the mapping and public status/Wake security tests.
 - [ ] Review with Minh on BLOCKED/cancel/retry/lock and with Hoàng on UI progress/URL status mapping.
 - [ ] Obtain G1 approval (if tests require AWS); P5 experiment must specify test domain, sandbox, IAM, budget, snapshots, maximum latency and cleanup.

@@ -19,7 +19,7 @@ Two scopes appear in the group's planning history:
 |---|---|---|---|
 | W6/W7 DUC-25 | [Blueprint component & safety review](../design/DUC-25-web-database-blueprint-review.md) | Logical graph, lifecycle & cost matrix, permission/state boundaries, BP-01…BP-16 test catalogue | Validate exact v1.2 contracts; G1/P3 evidence, reviewer acceptance |
 | W7 DUC-27 | [Stable URL/sleeping page & P5 review](../design/DUC-27-url-sleeping-health-cutover-review.md) | User state matrix, auth/health invariants, DNS alternatives, URL-01…URL-16 tests | Validate domain authority and v1.2 semantics, G1/P5, G3 option decision, reviewer |
-| W7 DUC-40 | [v1.2 Contract Traceability Register v0.3](DUC-40-v12-contract-traceability-register.md) plus original [traceability draft](https://linear.app/ducanh/document/infraflow-requirementcomponenttest-traceability-v01-draft-2613bddb7173) | **14** categories mapped to full v1.2 logical sections; CT-13 Unregister and CT-14 recovery have planned negative cases | Physical wire mapping after G3/G4 and all-owner peer review |
+| W7 DUC-40 | [v1.2 Contract Traceability Register v0.3](DUC-40-v12-contract-traceability-register.md) plus original [traceability draft](https://linear.app/ducanh/document/infraflow-requirementcomponenttest-traceability-v01-draft-2613bddb7173) | **14** categories mapped to full v1.2 logical sections; CT-13 Unregister and CT-14 recovery have planned negative cases | Physical wire mapping after G2/G3 in the plan for G4 approval; all-owner peer review |
 | W7 DUC-41 | [Collaboration agreement v0.2](https://linear.app/ducanh/document/infraflow-github-collaboration-and-integration-v02-public-pr-1-open-8139b78c893a), actual Github [onboarding PR #1](https://github.com/24021368-DucAnh/InfraFlow/pull/1) and [W7–W10 plan PR #19](https://github.com/24021368-DucAnh/InfraFlow/pull/19) | Public repo PR policy documented, CI safety checklist below | Verify reviewer enforcement/rulesets, non-destructive CI setup and G4 review |
 
 **Actual GitHub verification as of 20/10:** onboarding PR #1 was merged; weekly issue plan PR #19 was merged later. GitHub issues #2–#18 already exist. Do not confuse merged *documentation* with actual cloud/software implementation.
@@ -48,7 +48,7 @@ Two scopes appear in the group's planning history:
 ### W7-A: Baseline traceability (DUC-40)
 
 - [x] Draft owner/component/test coverage and link BP/URL acceptance test IDs.
-- [x] Created [DUC-40 v1.2 contract traceability register](DUC-40-v12-contract-traceability-register.md) with 14 CT categories, exact logical section references and owner review routing; physical wire remains pending G4.
+- [x] Created [DUC-40 v1.2 contract traceability register](DUC-40-v12-contract-traceability-register.md) with 14 CT categories, exact logical section references and owner review routing; physical wire remains pending the G4 approval plan.
 - [x] Reconciled v1.2 logical state, error, permission and handoff rules; corrected URL-user Wake and identified Unregister/recovery test gaps.
 - [ ] Finish physical producer/consumer schema mapping after G2/G3, then review for G4.
 - [ ] Đạt/Minh/Hoàng review producer/consumer mapping; record review comments/approval.
@@ -75,7 +75,7 @@ An AI-assisted [GitHub PR #20 review](https://github.com/24021368-DucAnh/InfraFl
 
 | Prior finding | Remediation now in PR #20 | Remaining acceptance gate |
 |---|---|---|
-| P1: blueprint contract had six UNVERIFIED mappings | Mapped six boundaries to full v1.2 logical sections and fields in [DUC-25](../design/DUC-25-web-database-blueprint-review.md); physical wire left pending | Independent peer confirmation and G4 wire mapping **OPEN** |
+| P1: blueprint contract had six UNVERIFIED mappings | Mapped six boundaries to full v1.2 logical sections and fields in [DUC-25](../design/DUC-25-web-database-blueprint-review.md); physical wire left pending | Independent peer confirmation and wire mapping in the G4 approval plan **OPEN** |
 | P1: RDS 7-day auto-restart/long Sleep missing | DUC-25 RDS feasibility addendum and BP-13; P3-03 synthetic drift scenario | G1-authorized AWS evidence, G3 policy choice **NOT RUN** |
 | P1: all-unhealthy ALB fail-open | DUC-27 independent public-route gate, URL-13 and P5-03 | Select/verify mechanism after G2/G3; no zero-traffic proof **NOT RUN** |
 | P2: lifecycle ownership/component cost inputs vague | DUC-25 per-component evidence/cost table and P3-08 | Exact v1.2 schemas + region-aware AWS price/actual bill **OPEN** |

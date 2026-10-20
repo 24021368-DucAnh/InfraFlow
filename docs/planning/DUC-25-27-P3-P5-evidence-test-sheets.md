@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-20 · **Status:** TEST PLAN ONLY / NOT RUN · **Author:** Đức Anh (AI-assisted) · **Reviewers proposed:** Hoàng (P3/P5/cost), Đạt (state/exclusive writer), Minh (controller/safety).
 
-These test sheets translate the design review into *repeatable verification recipes*. They **do not** choose AWS services, physical endpoints, DNS TTLs, cost limits or approved AWS credentials. The authoritative [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) were read in full on 21/10/2026; §2.1 fixes logical fields while physical wire mapping remains pending G4. External AWS constraints are marked explicitly below.
+These test sheets translate the design review into *repeatable verification recipes*. They **do not** choose AWS services, physical endpoints, DNS TTLs, cost limits or approved AWS credentials. The authoritative [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) were read in full on 21/10/2026; §2.1 fixes logical fields while physical wire mapping awaits G2/G3 choices and belongs in the G4 approval plan. External AWS constraints are marked explicitly below.
 
 ## 0. Mandatory gate and fixtures
 

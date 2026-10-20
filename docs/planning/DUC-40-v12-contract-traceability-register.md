@@ -86,7 +86,7 @@ Every CT-01…CT-14 needs one verified mapping row. Reviewer copies literal sour
 - [x] Unregister and durability mapped to full approved logical source; planned CT-13-U/CT-14-R cases added, NOT RUN.
 - [x] All 14 categories reconciled against the full v1.2 text at section level; URL-user Wake contradiction corrected.
 - [x] Original DUC-40 MAP-01..MAP-12 working rows reconciled to CT and planned acceptance cases; no test execution implied.
-- [x] Physical wire identified as G4 mapping; no HTTP/JSON endpoint or payload invented.
+- [x] Physical wire identified as required content of the G4 approval plan after G2/G3; no HTTP/JSON endpoint or payload invented.
 - [ ] Relevant team reviewers confirm ownership/error/negative paths and evidence in Linear.
 - [ ] Draft acceptance matrix approved for G4 planning; no AWS runs or product code attributed to this task.
 

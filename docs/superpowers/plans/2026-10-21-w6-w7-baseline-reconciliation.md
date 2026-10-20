@@ -4,7 +4,7 @@
 
 **Goal:** reconcile PR #20 with the full approved v1.2 baselines and the original versus rebased W6/W7 plans, correct contradictions, and leave reproducible review evidence.
 
-**Architecture:** retain the six PR documents as design and test planning artifacts. Add exact section-level semantic references from the Linear baseline, while labeling physical wire formats, AWS choices and measured thresholds as pending G2/G3/G4. Record tests and findings in this plan.
+**Architecture:** retain the six PR documents as design and test planning artifacts. Add exact section-level semantic references from the Linear baseline, while labeling AWS choices and measured thresholds as pending G2/G3 and physical wire formats as input to the G4 approval plan. Record tests and findings in this plan.
 
 **Tech stack:** Markdown, local Python/PowerShell checks, Git diff, GitHub and Linear review state.
 

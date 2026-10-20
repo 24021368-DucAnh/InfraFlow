@@ -47,7 +47,7 @@
 
 ```text
 PoC_ID: P1 / P2A / P2B / P3 / P4 / P5 / P6
-Source_requirement: DUC-xx + exact v1.2 logical section mapped in DUC-40 (physical wire pending G4)
+Source_requirement: DUC-xx + exact v1.2 logical section mapped in DUC-40 (physical wire pending G4 plan review)
 G1_approval_id_and_expiry: PENDING
 Operator_and_independent_reviewer: PENDING
 Sandbox_scope: private reference (no AWS identifiers in public GitHub)
