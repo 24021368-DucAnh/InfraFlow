@@ -1,0 +1,60 @@
+# Local environment / credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+.aws/
+credentials
+credentials.*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Terraform local artifacts; do NOT ignore .terraform.lock.hcl
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.tfstate.d/
+**/*.tfplan
+**/*.tfplan.json
+**/*.plan
+**/*.tfvars
+**/*.tfvars.json
+!**/*.tfvars.example
+!**/*.tfvars.json.example
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+**/crash.log
+**/crash.*.log
+
+# Application/tooling caches
+node_modules/
+.next/
+dist/
+build/
+coverage/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.log
+
+# Local/private evidence, credentials and backups
+evidence/private/
+artifacts/private/
+backups/
+*.bak
+*.backup
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
