@@ -53,6 +53,16 @@ User browser ---- stable hostname / TLS ----> Public entry route (implementation
 
 Do not silently pick Route 53, CloudFront, API Gateway, ALB or a domain architecture from examples in the original report. These are candidate AWS services; the selected topology and DNS control model require P5 evidence and G3 review. No cutover implementation or IaC before G4.
 
+### P5 safety supplement — upstream routing gate and change propagation
+
+**Externally verified AWS behavior, not a change to the v1.2 semantics:** ALB target groups can **fail open** if all registered targets are unhealthy. In that state, ALB routes requests to those unhealthy targets rather than preventing all access ([AWS target group health checks](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html)). A target-group health check by itself therefore **cannot** guarantee that an app is never exposed while unhealthy.
+
+**Candidate safety invariant to test:** the public entry path must have an *independent, authorized route gate* upstream of the application origin. A candidate decision could be a safe default route to a sleeping/status endpoint until the controller obtains readiness evidence and authorizes changing that route; the exact service, fail-safe mechanism, consistency model and permission boundaries remain **P5/G3 undecided**. Any path that bypasses the gate (direct ALB hostname or stale DNS/cache) must be identified and constrained by the approved topology. Do **not** assert an absolute zero-request guarantee without validating these bypasses and propagation windows.
+
+**Cutover sequence for a test, not implementation authorization:** (1) verify environment ownership, DNS/TLS rights, permit and exclusive operation; (2) confirm DB dependencies, app health/functional probe and matching environment identity; (3) verify that public entry configuration will not expose unhealthy or wrong-origin endpoints; (4) initiate reversible cutover and observe from client resolvers over a bounded period; (5) continuously check origin/route and fall back to safe status when checks fail; (6) record actual error windows and cleanup. A cached DNS response, old client connection, TLS mismatch or late health failure must be captured, not silently counted as success.
+
+**User-visible status privacy:** distinguish unauthenticated visitor content (minimal generic availability message) from authenticated owner/operator details (environment ID, tenant, state, operational logs, cost and controls). An unauthenticated Wake or guessed environment URL must never enable infrastructure mutation. The actual permission and status fields must be copied from approved Interface Contracts v1.2; this is a test boundary, not a new role/schema design.
+
 ## 4. Create versus Register URL ownership
 
 | Check | Create origin | Register origin | Unsafe/unknown outcome |
@@ -91,8 +101,15 @@ Register MVP expects compatible AWS Terraform Web+DB but **must not assume the e
 | URL-10 | Race: manual Wake vs scheduler or Reclaim | Only authorized state transition; no conflicting traffic update | Operation/lock audit + final AWS observed state |
 | URL-11 | Reclaim complete/incomplete | No stale traffic pointing to removed app; no false terminal success | Verify evidence and DNS/inventory checks |
 | URL-12 | Cost of public endpoint during Sleep | Residual cost included in comparison, not assumed zero | P6 usage/pricing source, measured cost where feasible |
+| URL-13 | All targets in an exposed ALB target group become unhealthy | Upstream app route remains safely gated or fails to status; capture ALB fail-open behavior, wrong-route exposure and mitigation | ALB target health records + external probes + public-entry configuration |
+| URL-14 | Cached DNS record and persistent connection during Sleep/cutover | Record propagation/connection exposure duration and safe rollback, do not claim instantaneous switching | Resolver samples + HTTP/TLS result timestamps + retry/error window |
+| URL-15 | Anonymous enumeration/status/CSRF/replay/rate abuse of Wake | No tenant/private status leakage or unauthorized/duplicate operation; approved rate policy enforced | Sanitized access/operation logs and authz results |
+| URL-16 | RDS restarts independently during long Sleep | Public entry does not implicitly expose app; controller identifies actual-versus-desired drift and follows approved policy | DB events/state, health/route checks, retained cost |
 
-**Evidence status:** NOT RUN for URL-01…URL-12; expected behaviors are **test criteria**, not measurements or claims of AWS capabilities.
+
+**Evidence status:** NOT RUN for URL-01…URL-16; expected behaviors are **test criteria**, not measurements or claims of AWS capabilities.
+
+**Execution details:** [P3/P5 evidence and acceptance test sheets](../planning/DUC-25-27-P3-P5-evidence-test-sheets.md) define fixtures, actions, pass/fail, failure conditions and cleanup without inventing API endpoints or AWS credentials.
 
 ## 7. Week-7 design-review handoff
 
