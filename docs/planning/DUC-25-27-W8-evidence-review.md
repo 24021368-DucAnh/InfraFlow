@@ -29,6 +29,21 @@ The outcome column describes the **v1.2 logical requirement**, not a tested AWS 
 | DNS cache or persistent connections still reach old app route during Sleep | Do not remove app or report `SLEEPING` until the approved cutover/drain oracle is met; unresolved state is `CUTOVER_UNVERIFIED` | URL-06/14, P5-04; Design §§5, 8; Contracts §§6, 8 | Timestamped resolver/client samples and reviewed threshold |
 | Register is being Unregistered | Stop new operations and verify reverse state/DNS/IAM handoff; never destroy as a side effect of Unregister | CT-13-U, Design §4; Contracts §§2.1, 3, 9 | Handback, no-destroy inventory and reviewer evidence |
 
+## G4 logical task-boundary proposal (no implementation authorization)
+
+The following packages are planning boundaries for the later G4 implementation plan. They deliberately name logical responsibilities and acceptance cases only; exact repository paths, endpoint/payload schemas, AWS services, thresholds and Terraform modules remain unset until G2/G3 evidence and owner review. Each package must be split into small TDD tasks in DUC-36 after those inputs are approved.
+
+| Package | Scope and dependency | Primary reviewer | Planned verification (NOT RUN) |
+|---|---|---|---|
+| Blueprint validation and Create inventory | Supported Web+DB inputs, Lease/policy validation, bounded Environment/resource ownership and dependency ordering; depends on DUC-25 review and G3 component choices | Đạt (state/resource scope), Hoàng (Create/API boundary) | BP-01/02/07/09; reject invalid or shared-resource scope before mutation |
+| Database-preserving Sleep/Wake | DB/app dependency, persistent-data fixture, observed-vs-desired reconciliation, unsupported topology and seven-day RDS restart handling; depends on P3/G2 and G3 policy | Minh (lifecycle/failure), Đạt (AWS/state evidence) | BP-05/06/13; P3-02/03/04; no false SLEEPING/healthy claim |
+| Register compatibility and handoff | Read-only validation of inventory, state, exclusive writer, ownership, lifecycle capability and DNS handoff; depends on DUC-38 and P1/P2 G2/G3 decisions; do not force Register into the Create module | Đạt (backend/lock), Minh (handoff safety) | BP-03/04/07/11/15; P3-05/06; missing proof rejects or BLOCKED without mutation |
+| Stable URL and sleeping experience | Public-safe status and bounded URL-holder Wake; preserve URL ownership for Create and Register; depends on DUC-27/DUC-38 and P5/G2/G3 route choice | Hoàng (UI/API/Wake), Minh (authorization/state) | URL-01/02/03/04/07/15; P5-01/02/05; no private status leakage or unauthorized DNS mutation |
+| Health-gated route cutover and recovery | Keep app traffic behind an independently verified public-route gate, handle stale DNS/persistent clients and rollback; depends on P5/G2 and G3 decision because ALB health alone can fail open | Minh (controller/rollback), Hoàng (public behavior) | URL-05/06/13/14; P5-03/04/06; all-targets-unhealthy and stale-route cases stay safe |
+| Cross-package integration and evidence | Contract-test both origins and multiple lifecycle cycles; collect sanitized expected/actual, cleanup, and cost estimate-vs-actual labels; depends on the above approved packages plus DUC-33 | Reviewer not the implementing owner; group review | BP-10/12/16, URL-08/09/10/11/12/16; P3-07/08, P5-07/08; no terminal success before Verify |
+
+**Task-boundary status:** proposal prepared for DUC-36; no package is implementation-ready or authorized. The owners must confirm boundaries/reviewers, and DUC-36 must receive explicit G4 approval before product code, Terraform IaC or deployment.
+
 ## Decisions and review still needed
 
 | Open item | Owner / reviewer proposed in Contracts §9.1 | Required source before G3/G4 |
