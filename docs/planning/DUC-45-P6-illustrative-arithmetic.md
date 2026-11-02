@@ -19,10 +19,10 @@ Storage per environment: 20 GB × $0.08/GB-month × (61/30 days) = **$3.2533**.
 
 | Scenario | Compute hours per environment | Arithmetic per environment | Three-environment Lease |
 |---|---:|---:|---:|
-| 24/7 | 1,464 | 1,464 × ($0.0264 + $0.0160) + $3.2533 = **$65.3269** | **$195.9807** |
-| Stop-only | 484 | 484 × $0.0424 + $3.2533 = **$23.7749** | **$71.3247** |
-| Deep Sleep (illustration) | 484 | 484 × $0.0424 + $3.2533 = **$23.7749** | **$71.3247** |
-| Reclaimed after day 20 (illustration) | 480 | 480 × $0.0424 + $3.2533 = **$23.6053** | **$70.8159** |
+| 24/7 | 1,464 | 1,464 × ($0.0264 + $0.0160) + $3.2533 = **$65.3269** | **$195.9808** |
+| Stop-only | 484 | 484 × $0.0424 + $3.2533 = **$23.7749** | **$71.3248** |
+| Deep Sleep (illustration) | 484 | 484 × $0.0424 + $3.2533 = **$23.7749** | **$71.3248** |
+| Reclaimed after day 20 (illustration) | 480 | 480 × $0.0424 + $3.2533 = **$23.6053** | **$70.8160** |
 
 Deep Sleep equals stop-only under these assumptions because no separate route/front-door or Wake-event charges are included; do not call this demonstrated savings. For the Reclaim illustration, compute is assumed to run continuously during the first 20 days, then stop; storage remains for all 61 days. Snapshot retention, teardown and other residual costs are excluded. Reclaim is not assumed to erase retained storage or backups.
 
