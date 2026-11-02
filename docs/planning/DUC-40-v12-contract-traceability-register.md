@@ -1,8 +1,8 @@
 # DUC-40 — Baseline v1.2 → Contract → Acceptance Traceability Register v0.3
 
-**Maintainer:** Ngô Bùi Đức Anh · **Date:** 2026-10-21 · **State:** baseline logic mapped; peer review and physical wire **PENDING**; not G4 approval
+**Maintainer:** Ngô Bùi Đức Anh · **Date:** 2026-10-21 · **State:** baseline logic mapped; team alignment reported 2026-11-02; physical wire **PENDING**; not G4 approval
 
-> **Authority discipline:** The project owner approved [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) on 19/10/2026. Both full document bodies were retrieved and read on 21/10/2026. Contracts §2.1 specifies **logical** fields and invariants; §10 explicitly defers HTTP/JSON wire mapping, service choices and measured thresholds. This register cites approved sections without inventing those physical details. It is still subject to independent reviewer confirmation.
+> **Authority discipline:** The project owner approved [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) on 19/10/2026. Both full document bodies were retrieved and read on 21/10/2026. Contracts §2.1 specifies **logical** fields and invariants; §10 explicitly defers HTTP/JSON wire mapping, service choices and measured thresholds. This register cites approved sections without inventing those physical details. On 2026-11-02, Đức Anh reported the group aligned on the logical traceability review; no individual reviewer names or section-level notes were supplied. Physical wire mapping and G2/G3-dependent choices remain pending and are not G4 approval.
 
 ## 1. Evidence tiers (avoid counterfeit contract conformity)
 
@@ -90,4 +90,4 @@ Every CT-01…CT-14 needs one verified mapping row. Reviewer copies literal sour
 - [ ] Relevant team reviewers confirm ownership/error/negative paths and evidence in Linear.
 - [ ] Draft acceptance matrix approved for G4 planning; no AWS runs or product code attributed to this task.
 
-**Result:** section-level baseline logic mapped by author, **not independently verified**. [PR #20](https://github.com/24021368-DucAnh/InfraFlow/pull/20) stays OPEN until independent review; physical wire and test execution remain pending their gates.
+**Result:** section-level baseline logic is mapped, and Đức Anh reported team alignment on the logical traceability review on 2026-11-02. No individual reviewer names or section-level sign-off notes were supplied. [PR #20](https://github.com/24021368-DucAnh/InfraFlow/pull/20) and W8 follow-up [PR #23](https://github.com/24021368-DucAnh/InfraFlow/pull/23) are merged to `main`; physical wire and test execution remain pending their gates.

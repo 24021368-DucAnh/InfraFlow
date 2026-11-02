@@ -1,6 +1,6 @@
 # DUC-25/27 — W8 Blueprint, Register and URL evidence review
 
-**As of:** 31 October 2026 · **Window:** W8, 26 October–1 November · **Tracking:** [GitHub #6](https://github.com/24021368-DucAnh/InfraFlow/issues/6), [DUC-25](https://linear.app/ducanh/issue/DUC-25), [DUC-27](https://linear.app/ducanh/issue/DUC-27), [DUC-40](https://linear.app/ducanh/issue/DUC-40) · **Status:** REVIEW DRAFT / P3 AND P5 NOT RUN
+**As of:** 31 October 2026 · **Window:** W8, 26 October–1 November · **Tracking:** [GitHub #6](https://github.com/24021368-DucAnh/InfraFlow/issues/6), [DUC-25](https://linear.app/ducanh/issue/DUC-25), [DUC-27](https://linear.app/ducanh/issue/DUC-27), [DUC-40](https://linear.app/ducanh/issue/DUC-40) · **Status:** TEAM ALIGNMENT REPORTED (2 November) / P3 AND P5 NOT RUN
 
 This review uses the accepted [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) and [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a). The [W6–W7 review package](../design/DUC-25-web-database-blueprint-review.md), [URL design](../design/DUC-27-url-sleeping-health-cutover-review.md), [traceability](DUC-40-v12-contract-traceability-register.md) and [P3/P5 sheets](DUC-25-27-P3-P5-evidence-test-sheets.md) remain drafts. This document records W8 acceptance boundaries and evidence still needed; it does not change v1.2 semantics.
 
@@ -12,7 +12,7 @@ This review uses the accepted [Technical Design v1.2](https://linear.app/ducanh/
 | G1 AWS PoC authorization | [DUC-24](https://linear.app/ducanh/issue/DUC-24) is Backlog; the G1 request in the review package is unsigned | No AWS P3/P5 execution. |
 | G2 P1–P6 evidence / G3 ADR | [DUC-37](https://linear.app/ducanh/issue/DUC-37) is Backlog; P3/P5 sheets contain no observed results | Mark every P3/P5 case **NOT RUN**, not PASS. Keep implementation choices open. |
 | G4 implementation approval | [DUC-36](https://linear.app/ducanh/issue/DUC-36) is Backlog | No product code, Terraform IaC or deployment. Local documentation QA is allowed. |
-| Independent review | [PR #20](https://github.com/24021368-DucAnh/InfraFlow/pull/20) remains open with unresolved threads | Design and traceability issues remain In Progress; no peer sign-off inferred from author/AI comments. |
+| Review disposition | [PR #20](https://github.com/24021368-DucAnh/InfraFlow/pull/20) and [PR #23](https://github.com/24021368-DucAnh/InfraFlow/pull/23) are merged to `main`; owner Đức Anh reported team alignment on 2 November. No individual reviewer names or section-level comments were supplied. | Record logical review as aligned per owner report; keep P3/P5 **NOT RUN** and physical/implementation choices pending G2/G3/G4. |
 
 ## Compatibility and outcome matrix
 
@@ -54,4 +54,4 @@ The following packages are planning boundaries for the later G4 implementation p
 | Wake abuse thresholds and public status projection | Hoàng + Minh; Đức Anh reviews sleeping-page boundary | P5-02 local/mock contract checks, then reviewed quantitative limits |
 | Residual and one-off costs compared with 24/7 and stop-only | Hoàng + Đạt | P3/P5 inventory plus P6 prices, region, period and measured versus estimated labels |
 
-**Next review handoff:** Đạt checks state/backend, component ownership and lock; Minh checks permit, BLOCKED and cutover failure; Hoàng checks DNS/status/Wake and cost. Record each person's actual review on [DUC-25](https://linear.app/ducanh/issue/DUC-25), [DUC-27](https://linear.app/ducanh/issue/DUC-27) or [PR #20](https://github.com/24021368-DucAnh/InfraFlow/pull/20). Until then, the W8 matrix is planning evidence only.
+**Review disposition (2 November 2026):** Đức Anh reports the group has settled the logical review of this W8 matrix; GitHub issue #6 is closed. No individual reviewer names or section-level comments were supplied, so none are attributed. This records planning alignment only; it does not approve G1/G2/G3/G4 or change any P3/P5 result from **NOT RUN**. When an approved G1 scope exists, record the named reviewers' actual probe and decision evidence on [DUC-25](https://linear.app/ducanh/issue/DUC-25), [DUC-27](https://linear.app/ducanh/issue/DUC-27) or [DUC-37](https://linear.app/ducanh/issue/DUC-37).
