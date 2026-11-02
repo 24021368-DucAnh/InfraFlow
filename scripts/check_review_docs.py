@@ -15,6 +15,7 @@ DOCS = [
     ROOT / "docs/planning/DUC-24-G1-poc-authorization-and-evidence.md",
     ROOT / "docs/planning/DUC-25-27-40-41-week6-week7-handoff.md",
     ROOT / "docs/planning/DUC-25-27-P3-P5-evidence-test-sheets.md",
+    ROOT / "docs/planning/DUC-25-27-W8-evidence-review.md",
     ROOT / "docs/planning/DUC-40-v12-contract-traceability-register.md",
     ROOT / "docs/superpowers/plans/2026-10-21-w6-w7-baseline-reconciliation.md",
 ]
@@ -101,7 +102,12 @@ for label, actual, expected in [
         errors.append(f"{label} catalogue mismatch: missing={sorted(expected-set(actual))}, extra/duplicates={actual}")
 
 sheet = texts.get("DUC-25-27-P3-P5-evidence-test-sheets.md", "")
-recipes = Counter(re.findall(r"^\| \*\*(P[35]-\d{2})\*\*", sheet, re.MULTILINE))
+recipe_rows = re.findall(r"^\| \*\*(P[35]-\d{2})\*\* → ([^|]+) \|", sheet, re.MULTILINE)
+recipes = Counter(recipe for recipe, _ in recipe_rows)
+recipe_coverage = {
+    recipe: set(re.findall(r"(?:BP|URL)-\d{2}", covered))
+    for recipe, covered in recipe_rows
+}
 expected_recipes = {f"P{probe}-{n:02d}" for probe in (3, 5) for n in range(1, 9)}
 if set(recipes) != expected_recipes or any(count != 1 for count in recipes.values()):
     errors.append(f"P3/P5 recipe mismatch: missing={sorted(expected_recipes-set(recipes))}, counts={recipes}")
@@ -112,9 +118,11 @@ expected_ids = set(blueprint) | set(url)
 if len(primary) != 16 or set(mapped) != expected_ids or any(count != 1 for count in mapped.values()):
     errors.append(f"primary one-to-one coverage mismatch: rows={len(primary)}, counts={mapped}")
 for row in primary:
-    for recipe in (row[1], row[3]):
+    for case, recipe in ((row[0], row[1]), (row[2], row[3])):
         if recipe not in recipes:
             errors.append(f"primary map references undefined recipe {recipe}")
+        elif case not in recipe_coverage[recipe]:
+            errors.append(f"primary recipe {recipe} does not cover {case}")
 
 all_docs = "\n".join(texts.values())
 for stale in ("get_document` returned empty", "Source text v1.2 not fully retrievable", "anonymous Wake →", "conflicting work is denied/serialized", "Conflict denied/serialized"):
