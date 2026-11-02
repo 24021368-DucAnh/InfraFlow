@@ -1,6 +1,6 @@
 # DUC-41 — CI/PR workflow and G4 readiness
 
-**Status:** DRAFT FOR TEAM REVIEW · **Prepared:** 1 November 2026
+**Status:** TEAM ALIGNMENT REPORTED · Planning artifact merged 2 November 2026
 
 **Tracking:** [DUC-41](https://linear.app/ducanh/issue/DUC-41), [DUC-36](https://linear.app/ducanh/issue/DUC-36)
 **Scope:** Planning only. This document proposes a reviewable collaboration and verification workflow; it does not configure CI, change branch protection, authorize AWS access, or approve implementation.
@@ -83,7 +83,7 @@ For team review, record:
 
 **Owner review:** Đức Anh approved this planning draft in the Codex conversation on 1 November 2026.
 
-**Awaiting independent team review.** Do not mark DUC-41 Done until the group review is complete, reviewer decisions are recorded, and this reviewed workflow/checklist is linked from DUC-36. Until then, DUC-41 remains In Progress. This owner approval does not represent teammate review, G1 AWS authorization, G2 evidence, G3 decisions, or G4 implementation approval.
+**Review disposition (2 November 2026):** Owner Đức Anh reported that the team has aligned on this planning artifact. The source conversation did not identify individual reviewers or section-by-section decisions, so none are attributed here. PR #24 merged this document to `main`; DUC-41 is Done for the planning artifact only. This does not represent G1 AWS authorization, G2 evidence, G3 decisions, or G4 implementation approval.
 
 ### Independent draft review
 
