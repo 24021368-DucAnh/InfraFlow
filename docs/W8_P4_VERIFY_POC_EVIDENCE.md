@@ -1,0 +1,44 @@
+# W8 / GitHub #8 — P4 fail-closed, Verify PoC và controller negative cases
+
+**Owner dự kiến:** Nguyễn Huy Minh · **Reviewer:** Trần Quý Đạt · **Trạng thái:** chuẩn bị thực hiện, chưa có bằng chứng chạy case.
+
+## Phạm vi và nguồn
+
+- [GitHub #8](https://github.com/24021368-DucAnh/InfraFlow/issues/8) yêu cầu simulation/mock, kết quả expected–actual, Verify thiếu bằng chứng, review nguyên tắc fail-closed và bàn giao DUC-37.
+- Ma trận W7 DUC-44 / [GitHub #4](https://github.com/24021368-DucAnh/InfraFlow/issues/4) đã merge vào `main` qua PR #22 (commit gốc `04a0e0b`). Đây là **kế hoạch**, không phải P4 đã pass; phần đính chính v1.2 bên dưới áp dụng cho expected W8, không âm thầm sửa lịch sử W7.
+- Baseline của #8: [Technical Design v1.2](https://linear.app/ducanh/document/infraflow-technical-design-v12-baseline-dja-chot-poc-xac-minh-chi-tiet-4d090c7a3d66) (TD) và [Interface Contracts v1.2](https://linear.app/ducanh/document/infraflow-interface-contracts-v12-baseline-logic-dja-chot-wire-mapping-94d3f67d204a) (IC), bản sao có trong `docs/` nhưng hiện chưa được Git theo dõi. Hai file v3.0 cũng chưa được theo dõi; không dùng mã lỗi, trạng thái, endpoint hoặc ngưỡng riêng của v3.0 làm chuẩn #8 khi chưa có quyết định version được review trên Linear. V1.2 chốt **ngữ nghĩa logic**, chưa chốt wire format và thông số định lượng.
+- [Hồ sơ G1 trong repo](planning/DUC-24-G1-poc-authorization-and-evidence.md) ghi chưa phê duyệt; cần đối chiếu quyết định mới nhất trên Linear trước mọi AWS action. Không dùng tài khoản AWS, workspace thật hoặc dữ liệu thật; không chạy Terraform apply/destroy, không viết product code hoặc IaC trước G4.
+
+## Phần 1 — chốt case và expected theo v1.2
+
+`NOT RUN` là trạng thái thực tế của **mọi** case; expected dưới đây là quy tắc logic cần kiểm tra, không phải actual. `create|register` là hai origin trong v1.2; `managementStatus`, `availabilityObserved` và `operationStatus` là ba trục riêng, `BLOCKED` không có nghĩa hạ tầng đã an toàn (TD §2; IC §2). Mỗi case cần ghi kết quả cho từng origin có áp dụng, không gộp Create với Register thành một lần pass. Trước G1 chỉ có thể diễn tập bằng dữ liệu giả; chưa có phần mềm controller/validator đã triển khai để chứng minh guardrail chạy thật.
+
+| W7 ID / trường hợp W8 | Origin | Expected theo baseline v1.2 | Nguồn v1.2 | Mode dự kiến | Actual / status |
+|---|---|---|---|---|---|
+| P4-01 — không có quyền / sai owner, handoff thiếu | create, register | Người gọi không có quyền → `UNAUTHORIZED`, từ chối trước thay đổi ở cả hai origin; riêng Register chưa xác minh owner hoặc writer cũ chưa dừng → `HANDOFF_INCOMPLETE`, chỉ đọc/từ chối Activate, không bật capability. | TD §§3–4; IC §§2.1, 8 | Diễn tập giả | NOT RUN |
+| P4-02 — permit thiếu/cũ hoặc plan đổi | create, register | Không apply Terraform **hoặc gọi AWS action trực tiếp** ngoài `ScopedPermit`; fingerprint, quyền, Actual hoặc Lease version đổi → permit hết hiệu lực, validate lại trước bước tiếp theo. | TD §§3, 5; IC §§2.1, 5 | Diễn tập giả | NOT RUN |
+| P4-03 — final backup chưa kiểm chứng | create, register | Dừng Reclaim trước xóa dữ liệu; `BACKUP_OR_PLAN_UNSAFE` là **nhóm lỗi logic**, không phải HTTP/enum đã triển khai. Lưu chính sách Lease và bằng chứng backup. | TD §5; IC §§5, 8 | Diễn tập giả | NOT RUN |
+| P4-04 — state khác AWS Actual / evidence cũ | create, register | Chấp nhận **chỉ** expected lifecycle delta được khai báo và chứng minh; khác biệt ngoài delta, cũ hoặc không giải thích được → `STALE_OR_CONFLICTING_EVIDENCE`, BLOCKED trước tác động không an toàn. Không đòi state/AWS giống mọi trường. | TD §2; IC §§2, 8 | Diễn tập giả | NOT RUN |
+| P4-05 — Verify còn resource hoặc state chưa sạch | create, register | Đối chiếu Terraform state **và** AWS actual theo inventory độc quyền, ghi riêng tài nguyên giữ lại và người chịu trách nhiệm; không `RECLAIMED` nếu chưa đủ hậu kiểm. Resource còn lại → `VERIFY_INCOMPLETE`. | TD §§3, 5; IC §§2.1, 8 | Diễn tập giả | NOT RUN |
+| P4-06 — shared/retained/out-of-scope resource | create, register | `SHARED_RESOURCE_IN_PLAN` → BLOCKED **trước** Terraform apply hoặc AWS action; tag/state không tự cấp ownership, retained/shared không được đưa vào phạm vi destroy. | TD §§2–3, 5; IC §§2.1, 5, 8 | Diễn tập giả | NOT RUN |
+| P4-07 — plan không parse được | create, register | Không thể xác minh phạm vi/fingerprint thì Validator **không cấp permit** và trả BLOCKED có lý do; không apply. IC v1.2 không chốt mã lỗi riêng hoặc parser/JSON vật lý; Đạt review chi tiết audit. | TD §§3, 5; IC §§2.1, 5, 8 | Diễn tập giả | NOT RUN |
+| P4-08 — mất lock hoặc writer thứ hai | create, register | Dừng trước bước kế tiếp; Register chưa bàn giao thì `HANDOFF_INCOMPLETE`, đã vận hành nhưng outcome không rõ thì BLOCKED và đối chiếu state/AWS, không dùng permit cũ. | TD §§4–5; IC §§2.1, 5, 9 | Diễn tập giả | NOT RUN |
+| P4-09 — retry / kết quả Reclaim mơ hồ | create, register | Chỉ retry bước biết chắc an toàn và có giới hạn; Reclaim có nguy cơ phá hủy mà outcome không rõ thì BLOCKED, không tự lặp destroy; `FAILED_RECOVERABLE` chỉ khi biết chắc bước dừng và retry an toàn. | TD §5; IC §§2, 5 | Diễn tập giả | NOT RUN |
+| P4-10 — hai operation cùng Environment | create, register | Cùng requestKey/payload → operation cũ; cùng mục tiêu khi đang chạy → operation đang chạy; mục tiêu trái chiều → `CONCURRENT_OPERATION`, không xếp hàng, không có hai writer. | TD §5; IC §§2, 4 | Diễn tập giả | NOT RUN |
+| P4-11 — Extend đua Reclaim | create, register | **Ngay trước phá hủy**, đọc lại Lease version/chính sách; version đổi → `LEASE_VERSION_CHANGED`, hủy permit và validate lại, **không tiếp tục destroy bằng permit cũ**. | TD §§5, 7; IC §§2.1, 5, 8–9 | Diễn tập giả | NOT RUN |
+| P4-12 — executor timeout / không rõ outcome | create, register | Timeout không đồng nghĩa thất bại; tra lại operation theo ID/key, nếu không xác định được kết quả tác động hạ tầng thì BLOCKED và điều tra; không báo `FAILED_RECOVERABLE` hoặc `RECLAIMED` giả. | TD §5; IC §§2, 5 | Diễn tập giả | NOT RUN |
+| P4-13 — Verify thiếu scan/bằng chứng | create, register | Chưa đủ bằng chứng state/AWS trong phạm vi → BLOCKED, không `RECLAIMED`, giữ quan sát cuối; IC quy định `VERIFY_INCOMPLETE` khi resource còn lại, **chưa chốt mã riêng khi nguồn scan lỗi**. | TD §§2, 5; IC §§2, 8 | Diễn tập giả | NOT RUN |
+
+### Đính chính khi sử dụng ma trận W7 đã merge
+
+- W7 dùng `adopt`, `FAILED`, `PLAN_UNSAFE`, `BACKUP_FAILED`, `HANDOFF_VIOLATION` theo v3.0; v1.2 dùng `register`, `FAILED_RECOVERABLE` và các **nhóm lỗi logic** `BACKUP_OR_PLAN_UNSAFE`, `SHARED_RESOURCE_IN_PLAN`, `LEASE_VERSION_CHANGED` (IC §§2, 8). Không tự ánh xạ chúng thành HTTP/JSON hay kết quả runtime.
+- W7 P4-06 chỉ nói Terraform plan; v1.2 yêu cầu permit bao phủ cả **AWS API action trực tiếp** và inventory phân loại độc quyền/giữ lại/dùng chung (IC §§2.1, 5).
+- W7 P4-11 cho phép hiểu rằng Reclaim đang chạy sẽ chạy nốt sau Extend; v1.2 yêu cầu **kiểm lại Lease version và hủy permit trước phá hủy** nếu đã đổi (TD §5; IC §§5, 8–9).
+- W7 P4-04 coi state `STOPPED`/AWS `RUNNING` là drift mặc định; v1.2 chỉ BLOCKED nếu khác biệt **ngoài `expectedLifecycleDelta` hoặc không giải thích được**, không đòi hai nguồn giống từng trường (TD §2; IC §2).
+- W7 P4-05/13 dựa vào số lượt quét, DNS và nhãn backup cụ thể từ v3.0. V1.2 bắt buộc Verify **Terraform state + AWS actual theo phạm vi**, ghi rõ retained resource và trách nhiệm; cách quét, số lần, nhãn và các ngưỡng chờ PoC/implementation review (TD §5; IC §§2.1, 8).
+
+## Mẫu kết quả cho *một lần* chạy case
+
+Ghi tách theo `case ID + origin (create/register) + mode`, không lấy kết quả diễn tập của Create thay cho Register. Bản ghi gồm: thời điểm; approval ref nếu có AWS; input fake và điểm tiêm lỗi; expected; **actual quan sát được**; verdict `PASS`/`FAIL`/`UNKNOWN`/`NOT RUN` cùng lý do; ba trục management/availability/operation, nguồn và thời điểm quan sát state/AWS/Verify; phạm vi permit cả Terraform và AWS action, Lease version, backup; inventory độc quyền/giữ lại/dùng chung trước/sau; cleanup; liên kết bằng chứng đã lọc; reviewer và câu hỏi chưa giải quyết. Không đưa secret, raw state/plan, inventory riêng hoặc log nhạy cảm lên GitHub.
+
+**Gate để chuyển sang AWS:** chỉ sau G1 bằng văn bản cho account/slot/IAM/budget/scope/case/cleanup và review của Đạt; phép thử phá hủy chỉ trên fake workspace/data đã được duyệt và có ownership, permit, backup cần thiết. Nếu chưa đạt thì giữ `NOT RUN — awaiting G1`; không phá hủy để chứng minh hành vi từ chối. Khi có kết quả, bàn giao taxonomy lỗi, nhu cầu interface permit/validator, cleanup và câu hỏi G3 cho DUC-37; không tự coi đó là G2/G3 approval.
