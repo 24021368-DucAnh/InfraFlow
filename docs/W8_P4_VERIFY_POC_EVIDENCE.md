@@ -80,8 +80,57 @@
 
 **Ranh giới bằng chứng và cleanup:** ghi actor/nguồn lịch, Lease version, `operationId`, bước, thời điểm/nguồn của state và AWS, phân loại tài nguyên độc quyền/giữ lại/dùng chung, backup, permit và outcome. Mọi cleanup resource test cũng cần ownership, backup và permit mới nếu plan/actual/quyền đã đổi; không xóa bản lưu theo policy chỉ để báo “sạch”. Dữ liệu thực và chi phí/inventory chi tiết nằm ở nơi được G1 duyệt, chỉ đưa tóm tắt đã lọc lên repo. Phần này là tiêu chí review cho P4-03/05/09/12/13, chưa có kết quả thực để điền cột actual.
 
+## Phần 4 — gói review cho Đạt và bàn giao DUC-37
+
+**Trạng thái gói này:** Minh chuẩn bị nội dung để review; **chưa có phản hồi/sign-off của Đạt**, chưa có AWS PoC, G2 hoặc quyết định G3. Diễn tập phần 2 chỉ kiểm tra cách đọc contract bằng dữ liệu giả, không chứng minh controller/validator thực thi đúng. DUC-37 nhận được câu hỏi và giới hạn chứng cứ, không nhận một kết luận “P4 pass”.
+
+### Taxonomy lỗi logic cần đối chiếu
+
+| Ranh giới / case | Ngữ nghĩa v1.2 và kết quả cần kiểm | Điểm cần reviewer xác nhận |
+|---|---|---|
+| API/onboarding P4-01 | `UNAUTHORIZED`: từ chối người gọi trước thay đổi. Register thiếu owner hoặc writer cũ chưa dừng: `HANDOFF_INCOMPLETE`, chỉ đọc/từ chối Activate. | Đạt đối chiếu handoff, lock với P1/P2; Hoàng đối chiếu quyền API. |
+| Validator P4-02/03/06/07/11 | Backup/plan không an toàn: `BACKUP_OR_PLAN_UNSAFE`; shared/retained resource trong Terraform **hoặc AWS action**: `SHARED_RESOURCE_IN_PLAN`; Lease version đổi: `LEASE_VERSION_CHANGED`, hủy permit. Plan không đọc được: BLOCKED có lý do, **không có mã vật lý đã chốt**. | Đạt xác nhận ranh giới input, nguồn observation, kiểm trước apply/AWS action và lý do audit cho plan không parse được. |
+| Controller P4-04/08/09/10/12 | Drift ngoài delta hoặc stale: `STALE_OR_CONFLICTING_EVIDENCE` → BLOCKED. Mục tiêu xung đột: `CONCURRENT_OPERATION`. `FAILED_RECOVERABLE` chỉ khi retry chắc chắn an toàn; mất lock hoặc timeout với outcome không rõ → BLOCKED, không tự retry phá hủy. | Đạt review writer/lock, evidence nào phân biệt kết quả đã biết với unknown; không tự đặt ngưỡng retry/timeout. |
+| Verify P4-05/13 | Resource phải thu hồi còn lại: `VERIFY_INCOMPLETE`, không RECLAIMED. Mất nguồn scan/state hoặc mâu thuẫn: không công bố thành công; xử lý BLOCKED với lý do và bằng chứng thiếu, **chưa tự gán một mã lỗi scan riêng**. | Đạt xác nhận phạm vi kiểm cả state/AWS, retained owner, cách xử lý resource thiếu tag/ngoài state và read-only retry. |
+
+Các tên trên là **nhóm lỗi logic**, không mặc định là HTTP status, enum runtime hay endpoint (IC §8). Không chọn nhánh v3.0 thay v1.2 chỉ vì tên lỗi trông cụ thể hơn.
+
+### Ranh giới controller ↔ validator/executor cần giữ khi triển khai
+
+- **Minh cung cấp/đối chiếu:** `environmentId`, `origin=create|register`, `operationId`, action, Lease version và chính sách, actor/capability, Desired State, ownership/handoff, configuration, Terraform state observation, AWS observation, `expectedLifecycleDelta` với nguồn/thời điểm; controller phải kiểm lại các điều kiện có thể đổi trước phá hủy (IC §§2.1, 4–5).
+- **Đạt xác minh và phát permit hoặc BLOCKED:** inventory phân loại exclusive/retained/shared, backup, lock/writer, plan fingerprint, Terraform **và AWS action trực tiếp**, quyền/capability và Lease version. `ScopedPermit` gắn operation, action, resource scope/class, allowed steps, fingerprint, evidence và hiệu lực; đổi Lease/plan/Actual/ownership → không dùng permit cũ (IC §§2.1, 5).
+- **Executor trả về:** bước, nguồn/thời điểm, tài nguyên thực sự bị tác động, kết quả/độ chắc chắn, bằng chứng hậu kiểm đã lọc. Controller giữ ba trục trạng thái riêng; không báo `SUCCEEDED` trước Verify và không xếp hàng ngầm operation trái mục tiêu. **Wire schema, backend, ngưỡng thời gian/retry chưa được v1.2 chốt**; đi theo G2/G3 rồi plan G4, không tự đặt ở PR này.
+
+**Đề nghị review độc lập:** Đạt ghi rõ *đồng ý / cần sửa / chưa đủ bằng chứng* cho **P4-01–P4-13 và V-01–V-07**, kèm lý do, nguồn v1.2 và ngày review trên Linear DUC-44 hoặc #8; ưu tiên các case permit, writer/lock, backup và Verify. Hoàng cần xác nhận điểm giao API–controller về quyền/Extend/idempotency; với `LEASE_VERSION_CHANGED`, điều kiện **hủy permit trước phá hủy** đã chốt, không đặt lại thành quyết định mở. Không điền tên reviewer vào kết quả nếu chưa có phản hồi thực.
+
+### Bàn giao dự kiến cho DUC-37, không phải đề nghị duyệt G3 lúc này
+
+| Mục bàn giao | Hiện trạng có thể chứng minh | Việc còn thiếu để review G2/G3 |
+|---|---|---|
+| P4 hypothesis, pass/fail/stop gates | 13 case map v1.2 ở phần 1; tám walkthrough bàn giấy ở phần 2; tiêu chí Verify V-01–V-07 ở phần 3. | Actual controller/validator, reviewer xác nhận và những case AWS được G1 cho phép. |
+| Error taxonomy và permit interface | Nhóm lỗi và ranh giới logic ở phần 4; không có mã wire/endpoint, số timeout/retry được chốt. | Đạt/Hoàng review producer–consumer; PoC P1/P2 lock/backend và P4 guardrails để chọn chi tiết triển khai. |
+| Evidence/chi phí/cleanup | Repo có [mẫu xin G1](planning/DUC-24-G1-poc-authorization-and-evidence.md) với P4 là `NOT RUN`; không có inventory AWS, backup hoặc cleanup thực. | G1 ký cho account/slot/scope, synthetic workspace, IAM/budget, approved cleanup; sau test ghi expected–actual, inventory trước/sau, log/chi phí/thời gian và bằng chứng đã lọc. |
+| Câu hỏi G3 còn mở | Backend Register giữ tại chỗ hay sao lưu/chuyển sang backend InfraFlow, cách thu inventory ngoài state/thiếu tag, giới hạn read-only retry/Verify và ngưỡng timeout/freshness phụ thuộc thực nghiệm. | Kết quả PoC đủ để nhóm quyết định; nếu thay ngữ nghĩa baseline thì đề xuất ADR/version và review, **không tự thu hẹp capability**. |
+
+**Cách cập nhật issue:** link tài liệu/PR vào #8 và DUC-44, ghi `NOT RUN — awaiting G1` cho phép thử AWS và `review pending` cho Đạt; có thể chuyển **câu hỏi và blocker hiện tại** sang DUC-37 nhưng ghi rõ chưa có actual. Chỉ chuyển kết luận PoC cùng expected–actual, bằng chứng đã lọc và cleanup **sau** phép thử được duyệt. DUC-36 chỉ nhận các kết luận đã review để lập plan G4. Không tick checkbox “test đã chạy” hoặc “review xong” vì có bảng trên giấy.
+
 ## Mẫu kết quả cho *một lần* chạy case
 
 Ghi tách theo `case ID + origin (create/register) + mode`, không lấy kết quả diễn tập của Create thay cho Register. Bản ghi gồm: thời điểm; approval ref nếu có AWS; input fake và điểm tiêm lỗi; expected; **actual quan sát được**; verdict `PASS`/`FAIL`/`UNKNOWN`/`NOT RUN` cùng lý do; ba trục management/availability/operation, nguồn và thời điểm quan sát state/AWS/Verify; phạm vi permit cả Terraform và AWS action, Lease version, backup; inventory độc quyền/giữ lại/dùng chung trước/sau; cleanup; liên kết bằng chứng đã lọc; reviewer và câu hỏi chưa giải quyết. Không đưa secret, raw state/plan, inventory riêng hoặc log nhạy cảm lên GitHub.
 
-**Gate để chuyển sang AWS:** chỉ sau G1 bằng văn bản cho account/slot/IAM/budget/scope/case/cleanup và review của Đạt; phép thử phá hủy chỉ trên fake workspace/data đã được duyệt và có ownership, permit, backup cần thiết. Nếu chưa đạt thì giữ `NOT RUN — awaiting G1`; không phá hủy để chứng minh hành vi từ chối. Khi có kết quả, bàn giao taxonomy lỗi, nhu cầu interface permit/validator, cleanup và câu hỏi G3 cho DUC-37; không tự coi đó là G2/G3 approval.
+## Phần 5 — quyết định gate và kế hoạch probe AWS có điều kiện
+
+**Quyết định hiện tại: NO-GO cho AWS P4.** [Hồ sơ G1 DUC-24](planning/DUC-24-G1-poc-authorization-and-evidence.md) là **request template**: account owner, sandbox, IAM, budget, workspace/lock, backup, danh sách phá hủy, slot, cleanup và nơi lưu evidence đều `PENDING`; chưa có sign-off trong repo. Trạng thái Linear mới hơn chưa được xác minh qua repo. Vì vậy **không gọi AWS, không chạy Terraform apply/destroy, không đo chi phí AWS và không ghi PASS**. Tất cả P4-01–P4-13 và V-01–V-07 vẫn `NOT RUN` ở mức hệ thống/AWS; tám phiếu S-01–S-08 chỉ là diễn tập contract trên giấy.
+
+### Điều kiện go/no-go trước từng probe
+
+| Cổng | Bằng chứng phải có trước khi bắt đầu | Nếu thiếu |
+|---|---|---|
+| **G1 cho đúng case** | Quyết định của AWS account owner, account test alias/region, IAM role và quyền tối thiểu, ngân sách/cảnh báo/người dừng, slot và thời hạn, danh sách case và AWS action được phép, nơi lưu evidence riêng. | `NOT RUN — awaiting G1`; không dùng checkbox #8 hoặc bản kế hoạch này làm giấy phép. |
+| **Môi trường thử độc lập** | Fake workspace + dữ liệu không nhạy cảm, inventory phân lớp độc quyền/giữ lại/dùng chung trước thử, người sở hữu state/DNS, lock writer duy nhất, chứng cứ backup/restore và policy retention. Với Register: handoff đầy đủ cho Sleep/Wake/Reclaim. | Không Activate/thay đổi hoặc phá hủy để “chứng minh” guardrail; chỉ diễn tập offline. |
+| **Điểm phá hủy và cleanup** | Người vận hành/reviewer, phạm vi permit gắn operation, Terraform plan fingerprint **và AWS action trực tiếp**, Lease version hiện tại, inventory trước/sau, bước stop/rollback, người xác nhận dọn dẹp và trần chi phí/thời gian. | Không thử destroy; thiếu ownership/backup/permit → dừng trước phá hủy. Cleanup cũng phải qua quyền và xác minh phạm vi. |
+| **Bằng chứng đủ công khai** | Nơi lưu riêng được duyệt cho state/plan/log/inventory thực; chỉ link báo cáo đã lọc secret, dấu thời gian, expected–actual, backup/Verify và cleanup lên GitHub/Linear. | `UNKNOWN` nếu đã thao tác nhưng không thể đối chiếu; không khai báo PASS hoặc RECLAIMED. |
+
+**Phân tuyến case khi G1 sau này được ký:** P4-01/02/03/04/06/07/08/12 là các nhánh thiếu điều kiện hoặc outcome không rõ — **không cố tình phá hủy trên AWS** để kiểm tra từ chối; dùng input giả hoặc phép đọc đã được G1 duyệt. P4-05/13 cần bằng chứng Verify state + AWS actual, kể cả khi nguồn đọc lỗi, nhưng không tự tạo tài nguyên mồ côi để chứng minh nếu không có scope/cleanup riêng. Một phép thu hồi **thành công** trên fake workspace chỉ được cân nhắc khi G1 cho phép chính xác case, phạm vi resource, final backup và cleanup, cùng quyền writer độc quyền; thành công đó không thay thế negative-case evidence. Các tham số retry/timeout, cách thu inventory và lựa chọn backend Register phải dựa vào PoC được review ở DUC-37, không lấy số từ v3.0 để chạy thử.
+
+**Nếu có phê duyệt sau này:** ghi cho *từng case + từng origin* approval ref/thời hạn, người vận hành và reviewer, input và expected **trước khi chạy**; sau phép thử ghi từng bước/time, actual, nguồn/fingerprint state và AWS observation, permit/backup, inventory trước/sau, thời gian/chi phí, outcome/cleanup, evidence đã lọc và reviewer decision. Nếu outcome phá hủy không rõ: dừng, giữ BLOCKED, báo người duyệt; không retry tự động. Gửi kết quả thực và giới hạn cho DUC-37; chỉ kết luận khi reviewer xác nhận. **Phần 5 hiện không có bước AWS nào đã thực hiện hoặc tài nguyên nào cần cleanup.**
